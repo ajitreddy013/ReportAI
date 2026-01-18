@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Report AI | Professional Report Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blob"></div>
+    <div class="container">
+        <header>
+            <h1>Auto Report AI</h1>
+            <p>Generate academic reports with professional formatting in seconds.</p>
+        </header>
+
+        <form id="reportForm">
+            <div class="form-grid">
+                <!-- Academic Details -->
+                <section class="form-section">
+                    <h3><span class="icon">🎓</span> Academic Details</h3>
+                    <div class="input-group">
+                        <label for="college_name">College Name</label>
+                        <input type="text" id="college_name" name="college_name" value="Sinhgad College of Engineering, Pune" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" name="department" value="Computer Engineering" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="student_name">Student Name</label>
+                        <input type="text" id="student_name" name="student_name" placeholder="John Doe" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="roll_no">Roll Number</label>
+                        <input type="text" id="roll_no" name="roll_no" placeholder="e.g. 12345" required>
+                    </div>
+                </section>
+
+                <!-- Report Content -->
+                <section class="form-section">
+                    <h3><span class="icon">📝</span> Report Content</h3>
+                    <div class="input-group">
+                        <label for="topic">Report Topic</label>
+                        <input type="text" id="topic" name="topic" placeholder="e.g. AI in Healthcare" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="introduction">Introduction</label>
+                        <textarea id="introduction" name="introduction" rows="3" placeholder="Briefly introduce the topic..." required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="objectives">Objectives</label>
+                        <textarea id="objectives" name="objectives" rows="2" placeholder="What are the goals?"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="methodology">Methodology</label>
+                        <textarea id="methodology" name="methodology" rows="2" placeholder="How was it done?"></textarea>
+                    </div>
+                </section>
+
+                <!-- Advanced Options -->
+                <section class="form-section full-width">
+                    <h3><span class="icon">⚙️</span> Templates & Output</h3>
+                    <div class="options-grid">
+                        <div class="input-group">
+                            <label for="template_file">Custom Template (.docx)</label>
+                            <input type="file" id="template_file" name="template_file" accept=".docx">
+                            <small>Leave empty to use the default teacher template.</small>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="convertToPdf" name="convertToPdf">
+                            <label for="convertToPdf">Convert to PDF</label>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section full-width">
+                     <div class="input-group">
+                        <label for="conclusion">Conclusion</label>
+                        <textarea id="conclusion" name="conclusion" rows="2" placeholder="Summarize findings..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="references">References</label>
+                        <textarea id="references" name="references" rows="2" placeholder="List sources..."></textarea>
+                    </div>
+                </section>
+            </div>
+
+            <div class="actions">
+                <button type="submit" id="generateBtn">Generate Report</button>
+            </div>
+        </form>
+
+        <div id="status" class="status-message hidden"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
