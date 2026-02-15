@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Report AI | Intelligent Academic Report Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blob"></div>
+    <div class="container">
+        <header>
+            <h1>Smart Report AI</h1>
+            <p>Generate academic reports by analyzing sample documents and creating custom content</p>
+        </header>
+
+        <!-- Progress Indicator -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps">
+                <span class="step active" data-step="1">1. Sample</span>
+                <span class="step" data-step="2">2. Topic</span>
+                <span class="step" data-step="3">3. Images</span>
+                <span class="step" data-step="4">4. Generate</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Sample Document Upload -->
+        <div class="step-content active" id="step1">
+            <section class="form-section full-width">
+                <h3><span class="icon">📄</span> Upload Sample Document</h3>
+                <p class="step-description">Upload a sample report from your friend to analyze its format and structure.</p>
+                
+                <div class="input-group">
+                    <label for="sample_file">Sample Report (.docx)</label>
+                    <input type="file" id="sample_file" name="sample_file" accept=".docx" required>
+                    <small>Upload a well-formatted academic report to use as a template</small>
+                </div>
+                
+                <div class="analysis-preview hidden" id="analysisPreview">
+                    <h4>Document Analysis Results</h4>
+                    <div class="analysis-details">
+                        <div class="analysis-item">
+                            <span class="label">Format Compatibility:</span>
+                            <span class="value" id="compatibilityScore">-</span>
+                        </div>
+                        <div class="analysis-item">
+                            <span class="label">Detected Sections:</span>
+                            <span class="value" id="detectedSections">-</span>
+                        </div>
+                        <div class="analysis-item">
+                            <span class="label">Formatting Score:</span>
+                            <span class="value" id="formattingScore">-</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Gemini API Status -->
+                    <div class="gemini-status" id="geminiStatus">
+                        <h4>AI Generation Status</h4>
+                        <div class="status-details">
+                            <div class="status-item">
+                                <span class="label">Engine:</span>
+                                <span class="value" id="engineStatus">Checking...</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="label">Gemini API:</span>
+                                <span class="value" id="apiStatus">Not configured</span>
+                            </div>
+                        </div>
+                        <button type="button" id="configureGeminiBtn" class="secondary-btn">Configure Gemini API</button>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button type="button" id="analyzeBtn" class="primary-btn">Analyze Document</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Step 2: Topic and Content -->
+        <div class="step-content" id="step2">
+            <div class="form-grid">
+                <section class="form-section">
+                    <h3><span class="icon">🎯</span> Academic Details</h3>
+                    <div class="input-group">
+                        <label for="student_name_smart">Student Name</label>
+                        <input type="text" id="student_name_smart" name="student_name_smart" placeholder="John Doe" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="roll_no_smart">Roll Number</label>
+                        <input type="text" id="roll_no_smart" name="roll_no_smart" placeholder="e.g. 12345" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="college_name_smart">College Name</label>
+                        <input type="text" id="college_name_smart" name="college_name_smart" value="Sinhgad College of Engineering, Pune">
+                    </div>
+                    <div class="input-group">
+                        <label for="department_smart">Department</label>
+                        <input type="text" id="department_smart" name="department_smart" value="Computer Engineering">
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3><span class="icon">📝</span> Report Topic</h3>
+                    <div class="input-group">
+                        <label for="topic_smart">Your Topic</label>
+                        <input type="text" id="topic_smart" name="topic_smart" placeholder="e.g. Machine Learning Applications in Healthcare" required>
+                        <small>Enter your specific research topic</small>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="content_style">Content Style</label>
+                        <select id="content_style" name="content_style">
+                            <option value="academic">Academic (Standard)</option>
+                            <option value="technical">Technical (Advanced)</option>
+                            <option value="formal">Formal (Professional)</option>
+                        </select>
+                    </div>
+                </section>
+            </div>
+
+            <section class="form-section full-width">
+                <h3><span class="icon">✏️</span> Custom Content (Optional)</h3>
+                <p class="step-description">Add your own content to override AI-generated sections</p>
+                
+                <div class="content-grid">
+                    <div class="input-group">
+                        <label for="introduction_smart">Introduction</label>
+                        <textarea id="introduction_smart" name="introduction_smart" rows="3" placeholder="Your introduction (optional)..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="objectives_smart">Objectives</label>
+                        <textarea id="objectives_smart" name="objectives_smart" rows="2" placeholder="Your objectives (optional)..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="methodology_smart">Methodology</label>
+                        <textarea id="methodology_smart" name="methodology_smart" rows="2" placeholder="Your methodology (optional)..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="result_smart">Results</label>
+                        <textarea id="result_smart" name="result_smart" rows="2" placeholder="Your results (optional)..."></textarea>
+                    </div>
+                </section>
+
+                <div class="actions">
+                    <button type="button" id="prevStep2" class="secondary-btn">Previous</button>
+                    <button type="button" id="nextStep2" class="primary-btn">Next: Add Images</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Step 3: Image Management -->
+        <div class="step-content" id="step3">
+            <section class="form-section full-width">
+                <h3><span class="icon">🖼️</span> Images & Captions</h3>
+                <p class="step-description">Add images with captions that match your topic content</p>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="include_images" name="include_images">
+                    <label for="include_images">Include images in my report</label>
+                </div>
+
+                <div class="image-section hidden" id="imageSection">
+                    <div class="input-group">
+                        <label for="image_files">Upload Images</label>
+                        <input type="file" id="image_files" name="image_files" accept="image/*" multiple>
+                        <small>You can select multiple images</small>
+                    </div>
+
+                    <div class="images-preview" id="imagesPreview">
+                        <h4>Image Management</h4>
+                        <div class="image-list" id="imageList">
+                            <!-- Images will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" id="prevStep3" class="secondary-btn">Previous</button>
+                    <button type="button" id="nextStep3" class="primary-btn">Next: Generate Report</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Step 4: Generate Report -->
+        <div class="step-content" id="step4">
+            <section class="form-section full-width">
+                <h3><span class="icon">⚡</span> Final Options</h3>
+                
+                <div class="options-grid">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="convertToPdf_smart" name="convertToPdf_smart">
+                        <label for="convertToPdf_smart">Convert to PDF</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="preserve_formatting" name="preserve_formatting" checked>
+                        <label for="preserve_formatting">Preserve Original Formatting</label>
+                    </div>
+                </div>
+
+                <div class="review-section">
+                    <h4>Review Your Report Details</h4>
+                    <div class="review-grid">
+                        <div class="review-item">
+                            <span class="label">Topic:</span>
+                            <span class="value" id="reviewTopic">-</span>
+                        </div>
+                        <div class="review-item">
+                            <span class="label">Student:</span>
+                            <span class="value" id="reviewStudent">-</span>
+                        </div>
+                        <div class="review-item">
+                            <span class="label">Images:</span>
+                            <span class="value" id="reviewImages">-</span>
+                        </div>
+                        <div class="review-item">
+                            <span class="label">Format:</span>
+                            <span class="value" id="reviewFormat">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" id="prevStep4" class="secondary-btn">Previous</button>
+                    <button type="button" id="generateSmartBtn" class="primary-btn">Generate Smart Report</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status" class="status-message hidden"></div>
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            <div class="loading-spinner"></div>
+            <p>Generating your report...</p>
+        </div>
+    </div>
+
+    <script src="smart-report.js"></script>
+</body>
+</html>
