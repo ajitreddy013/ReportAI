@@ -32,5 +32,10 @@ backend/uploads/*
 backend/outputs/*
 !backend/outputs/.gitkeep
 
+# Environment variables
+.env
+.env.local
+*.env
+
 # Logs
 *.log
