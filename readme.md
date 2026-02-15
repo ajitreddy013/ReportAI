@@ -13,23 +13,35 @@ A modern web application that automatically generates professionally formatted a
 ## 🎯 Problem Statement
 
 Academic report writing is time-consuming and frustrating:
+
 - **Manual formatting** takes hours of repetitive work
 - **Template compliance** requires constant adjustments
 - **Revision cycles** mean reformatting everything again
 - **Inconsistent styling** leads to rejected submissions
+- **Content generation** from scratch is difficult and time-intensive
 
-Students waste valuable time on formatting instead of focusing on content quality.
+Students waste valuable time on formatting and content creation instead of focusing on learning and research.
 
 ---
 
 ## ✨ Solution
 
-**ReportAI** automates the entire report generation process:
+**ReportAI** automates the entire report generation process with two powerful modes:
+
+### Traditional Mode
 
 1. 📤 Upload your institution's Word template (or use the default)
 2. ✍️ Fill in your content through an intuitive web interface
 3. 🤖 AI processes and formats everything automatically
 4. 📥 Download your perfectly formatted DOCX or PDF report
+
+### Smart Report Mode (NEW!)
+
+1. 📄 Upload a sample report from a friend/classmate
+2. 🎯 Specify your topic and academic details
+3. 🖼️ Add images with captions (optional)
+4. 🤖 AI analyzes the format and generates custom content
+5. 📥 Download your unique report with preserved formatting
 
 **Result:** What used to take hours now takes minutes!
 
@@ -38,14 +50,18 @@ Students waste valuable time on formatting instead of focusing on content qualit
 ## 🚀 Key Features
 
 ### ✅ Core Capabilities
+
 - **Template-Based Generation** - Use any Word template with placeholder support
 - **Smart Formatting** - Preserves fonts, spacing, margins, headers, and footers
 - **Dual Output** - Generate both DOCX and PDF formats
 - **Custom Templates** - Upload your own institutional templates
 - **Modern UI** - Beautiful, responsive interface with real-time feedback
 - **Zero Configuration** - Works out of the box with sensible defaults
+- **Smart Content Generation** - NEW: Analyze sample documents and generate custom content
+- **Image Intelligence** - NEW: Automatic image placement based on captions and context
 
 ### 🎨 Preserved Formatting
+
 - Font styles and sizes
 - Line spacing and paragraph alignment
 - Page margins and orientation
@@ -58,22 +74,26 @@ Students waste valuable time on formatting instead of focusing on content qualit
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **HTML5** - Semantic structure
 - **CSS3** - Modern styling with glassmorphism effects
 - **Vanilla JavaScript** - No framework overhead
 - **Google Fonts** - Inter & Outfit typography
 
 ### Backend
+
 - **Python 3.8+** - Core language
 - **FastAPI** - High-performance async web framework
 - **docxtpl** - Template rendering engine
 - **python-docx** - Advanced document manipulation
 
 ### Document Processing
+
 - **LibreOffice** - Headless PDF conversion
 - **python-multipart** - File upload handling
 
 ### Deployment Ready
+
 - **Backend**: Render, Railway, PythonAnywhere
 - **Frontend**: Vercel, Netlify, GitHub Pages
 - **Storage**: Local filesystem (upgradeable to cloud)
@@ -104,9 +124,11 @@ ReportAI/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Python 3.8 or higher
 - LibreOffice (for PDF conversion)
 - Modern web browser
+- Optional: Tesseract OCR (for image text extraction)
 
 ### 1️⃣ Clone the Repository
 
@@ -132,6 +154,10 @@ venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Install additional dependencies for smart features
+pip install Pillow  # For image processing
+# Optional: pip install pytesseract  # For OCR capabilities
 ```
 
 ### 3️⃣ Start the Backend Server
@@ -156,6 +182,11 @@ open index.html  # macOS
 python -m http.server 3000
 # Then visit http://localhost:3000
 ```
+
+### 5️⃣ Access Smart Report Features
+
+- **Traditional Mode**: Visit `http://localhost:3000/index.html`
+- **Smart Report Mode**: Visit `http://localhost:3000/smart-report.html`
 
 ---
 
@@ -198,11 +229,12 @@ python create_template.py
 
 ## 🔌 API Documentation
 
-### Generate Report Endpoint
+### Traditional Report Generation
 
 **POST** `/generate-report`
 
 **Form Data:**
+
 ```
 student_name: string (required)
 roll_no: string (required)
@@ -219,23 +251,61 @@ template_file: file (optional, .docx)
 convertToPdf: boolean (default: false)
 ```
 
-**Response:**
-- Success: File download (DOCX or PDF)
-- Error: JSON with error details
+### Smart Report Generation (NEW!)
 
-**Example using cURL:**
-```bash
-curl -X POST "http://localhost:8000/generate-report" \
-  -F "student_name=John Doe" \
-  -F "roll_no=12345" \
-  -F "topic=AI in Healthcare" \
-  -F "introduction=This report explores..." \
-  -F "convertToPdf=true"
+**POST** `/analyze-sample`
+
+Analyze a sample document to extract formatting information.
+
+**Form Data:**
+
 ```
+sample_file: file (.docx, required)
+```
+
+**Response:** SampleDocumentAnalysis object with formatting details
+
+**POST** `/generate-smart-report`
+
+Generate a report based on sample document analysis and custom content.
+
+**Form Data:**
+
+```
+document_id: string (required - from /analyze-sample)
+student_name: string (required)
+roll_no: string (required)
+topic: string (required)
+college_name: string (default: "Sinhgad College of Engineering, Pune")
+department: string (default: "Computer Engineering")
+introduction: string (optional - override AI generated)
+objectives: string (optional)
+methodology: string (optional)
+result: string (optional)
+conclusion: string (optional)
+references: string (optional)
+images_json: string (JSON array of image data, optional)
+convert_to_pdf: boolean (default: false)
+content_style: string (default: "academic", options: "academic", "technical", "formal")
+```
+
+**POST** `/upload-images`
+
+Upload images for report generation.
+
+**Form Data:**
+
+```
+images: file[] (multiple image files)
+```
+
+**Response:** List of uploaded image information
 
 ---
 
 ## 🎨 Usage Workflow
+
+### Traditional Mode
 
 1. **Open the Application** - Navigate to the frontend in your browser
 2. **Fill Academic Details** - Enter college, department, name, and roll number
@@ -244,6 +314,16 @@ curl -X POST "http://localhost:8000/generate-report" \
 5. **Select Output Format** - Check "Convert to PDF" if needed
 6. **Generate** - Click "Generate Report" button
 7. **Download** - Your formatted report downloads automatically
+
+### Smart Report Mode (NEW!)
+
+1. **Upload Sample** - Upload a friend's well-formatted report
+2. **Analyze Format** - System analyzes structure, fonts, and layout
+3. **Enter Your Details** - Provide your topic and academic information
+4. **Add Images** - Upload relevant images with descriptive captions
+5. **Customize Content** - Optionally override AI-generated sections
+6. **Generate Smart Report** - AI creates unique content in the same format
+7. **Download** - Get your personalized report with preserved formatting
 
 ---
 
@@ -254,11 +334,13 @@ curl -X POST "http://localhost:8000/generate-report" \
 Install LibreOffice for PDF generation:
 
 **macOS:**
+
 ```bash
 brew install --cask libreoffice
 ```
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt-get install libreoffice
 ```
@@ -267,6 +349,7 @@ sudo apt-get install libreoffice
 Download from [LibreOffice.org](https://www.libreoffice.org/download/download/)
 
 Verify installation:
+
 ```bash
 soffice --version
 ```
@@ -278,6 +361,7 @@ soffice --version
 ### Issue: Template placeholders not replaced
 
 **Solution:**
+
 - Verify placeholder names match exactly (case-sensitive)
 - Ensure placeholders are in regular paragraphs, not text boxes
 - Check for extra spaces: `{{ NAME }}` won't work, use `{{NAME}}`
@@ -285,6 +369,7 @@ soffice --version
 ### Issue: PDF conversion fails
 
 **Solution:**
+
 - Confirm LibreOffice is installed: `soffice --version`
 - Check PATH includes LibreOffice binary
 - On Windows, add to PATH: `C:\Program Files\LibreOffice\program\`
@@ -293,6 +378,7 @@ soffice --version
 
 **Solution:**
 Already configured! CORS middleware is enabled in `main.py`. If issues persist:
+
 - Ensure backend is running on port 8000
 - Check browser console for specific error
 - Try accessing from `http://localhost` instead of `file://`
@@ -300,6 +386,7 @@ Already configured! CORS middleware is enabled in `main.py`. If issues persist:
 ### Issue: Module not found errors
 
 **Solution:**
+
 ```bash
 # Ensure virtual environment is activated
 source venv/bin/activate  # or venv\Scripts\activate on Windows
@@ -312,22 +399,36 @@ pip install -r requirements.txt
 
 ## 🗺️ Roadmap
 
-### 🎯 Phase 2: AI-Powered Feedback (Planned)
+### ✅ Completed Features
+
+- **Smart Content Generation** - Analyze sample documents and generate custom content
+- **Image Intelligence** - Automatic image placement based on captions and context
+- **Format Preservation** - Maintain original document styling and structure
+- **Multi-step Workflow** - Guided process for sample analysis and report generation
+- **API Endpoints** - RESTful APIs for document analysis and smart generation
+
+### 🎯 Future Enhancements
+
+### Phase 2: AI-Powered Feedback (Planned)
+
 - Paste teacher feedback
 - Auto-detect required changes
 - One-click regeneration with fixes
 
-### 📚 Phase 3: Template Library (Planned)
+### Phase 3: Template Library (Planned)
+
 - Pre-built templates for different departments
 - Community-shared templates
 - Template versioning
 
-### 💬 Phase 4: Natural Language Editing (Planned)
+### Phase 4: Natural Language Editing (Planned)
+
 - "Make all headings bold"
 - "Set line spacing to 1.5"
 - "Add page numbers at bottom center"
 
-### 👤 Phase 5: User Accounts (Planned)
+### Phase 5: User Accounts (Planned)
+
 - Save report history
 - Cloud storage integration
 - Collaborative editing
