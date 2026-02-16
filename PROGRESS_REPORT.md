@@ -343,10 +343,9 @@ http://localhost:3000
 
 ### API Key Status
 
-- **Gemini API Key:** ✅ Configured
-- **Key ID:** `AIzaSyBPpn4e6uRwpYUnNJ7ACbpc8STHgh5kRzQ`
+- **Gemini API Key:** Not configured (user provides their own)
 - **Model:** gemini-pro
-- **Status:** Active and operational
+- **Status:** Awaiting configuration
 
 ---
 
