@@ -31,6 +31,8 @@ backend/uploads/*
 !backend/uploads/.gitkeep
 backend/outputs/*
 !backend/outputs/.gitkeep
+scratch/
+outputs/
 
 # Environment variables
 .env
