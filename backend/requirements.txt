@@ -1,5 +1,11 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
 docxtpl
 python-docx
+google-generativeai
+python-dotenv
+docx2pdf
+Pillow
+pypdf
+python-pptx
