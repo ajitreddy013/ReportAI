@@ -1,4 +1,10 @@
-import google.generativeai as genai
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except ImportError:
+    genai = None
+    GENAI_AVAILABLE = False
+
 from typing import Dict, List, Optional
 import asyncio
 import time
@@ -14,6 +20,11 @@ class GeminiContentGenerator:
     
     def _initialize_model(self):
         """Initialize Gemini model if API key is available"""
+        if not GENAI_AVAILABLE:
+            print("⚠️  google-generativeai package not installed - using rule-based fallback")
+            self.is_initialized = False
+            return
+            
         if gemini_config.is_configured():
             try:
                 genai.configure(api_key=gemini_config.api_key)
@@ -28,7 +39,7 @@ class GeminiContentGenerator:
                     safety_settings=gemini_config.get_safety_settings()
                 )
                 self.is_initialized = True
-                print("✅ Gemini API initialized successfully")
+                print("✅ Gemini API initialized successfully with model:", gemini_config.model_name)
             except Exception as e:
                 print(f"❌ Failed to initialize Gemini API: {e}")
                 self.is_initialized = False
@@ -50,7 +61,73 @@ class GeminiContentGenerator:
             return response
         except Exception as e:
             raise Exception(f"Gemini content generation failed: {str(e)}")
-    
+
+    async def generate_full_report_structure(self, topic: str, format_type: str, 
+                                            sections_list: List[str], context: Dict) -> Dict[str, str]:
+        """Generate entire structured report in a single coherent Gemini call"""
+        if not self.is_initialized:
+            raise Exception("Gemini API not available")
+
+        sections_formatted = "\n".join([f"- {s}" for s in sections_list])
+        ref_context = context.get("reference_context", "")
+
+        prompt = f"""You are an elite academic professor and technical researcher. 
+Generate a comprehensive, professionally written academic report on the topic: "{topic}".
+
+REPORT TYPE / FORMAT: {format_type}
+STUDENT NAME: {context.get('student_name', 'Student')}
+INSTITUTION: {context.get('college_name', 'University Department')}
+DEPARTMENT: {context.get('department', 'Computer Science & Engineering')}
+
+SECTIONS TO GENERATE:
+{sections_formatted}
+
+ADDITIONAL REFERENCE MATERIAL & SOURCE NOTES:
+{ref_context if ref_context else "No extra reference notes provided. Synthesize complete state-of-the-art knowledge on this topic."}
+
+CRITICAL INSTRUCTIONS:
+1. Provide rich, detailed academic paragraphs for EACH section with deep technical depth, methodologies, algorithms/equations if applicable, analysis, and formal academic tone.
+2. If reference material/links are provided above, explicitly cite, integrate, and synthesize their key points into the corresponding sections.
+3. For References / Bibliography section, provide realistic standard IEEE / APA academic citations with authors, titles, journals/conferences, and years.
+4. Output your response as valid JSON matching this format:
+{{
+  "sections": {{
+    "Section Name": "Full detailed multi-paragraph content for this section...",
+    ...
+  }}
+}}
+Return ONLY the JSON object. Do not include markdown code block backticks if possible, or wrap strictly in ```json.
+"""
+        try:
+            response_text = await asyncio.get_event_loop().run_in_executor(
+                None, self._generate_content_sync, prompt
+            )
+            # Clean JSON
+            cleaned = response_text.strip()
+            if cleaned.startswith("```json"):
+                cleaned = cleaned[7:]
+            if cleaned.startswith("```"):
+                cleaned = cleaned[3:]
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+            cleaned = cleaned.strip()
+
+            import json
+            data = json.loads(cleaned)
+            if "sections" in data and isinstance(data["sections"], dict):
+                return data["sections"]
+            return {s: "Content generated." for s in sections_list}
+        except Exception as e:
+            print(f"Full report generation JSON parse fallback: {e}")
+            # Fallback to generating section by section
+            results = {}
+            for s in sections_list:
+                try:
+                    results[s] = await self.generate_section_content(s, topic, "Computer Science & Engineering", context)
+                except Exception as inner_err:
+                    results[s] = f"Error generating section {s}: {inner_err}"
+            return results
+
     def _generate_content_sync(self, prompt: str) -> str:
         """Synchronous content generation (for async wrapper)"""
         response = self.model.generate_content(prompt)
@@ -59,8 +136,7 @@ class GeminiContentGenerator:
     def _build_academic_prompt(self, section: str, topic: str, 
                               domain: str, context: Dict) -> str:
         """Build comprehensive academic prompt for Gemini"""
-        
-        base_prompt = f"""You are an expert academic writer specializing in {domain} fields. 
+        base_prompt = f"""You are an expert academic writer specializing in {domain}. 
 Generate high-quality, original academic content for a student report.
 
 TOPIC: {topic}
@@ -68,20 +144,19 @@ SECTION: {section}
 DOMAIN: {domain}
 
 REQUIREMENTS:
-- Write in formal academic English
-- Maintain proper academic tone and structure
-- Include relevant technical terminology for {domain}
-- Ensure content is plagiarism-free and original
-- Follow standard academic writing conventions
-- Keep content focused and well-organized
-
+- Write in formal academic English with proper paragraph structure.
+- Include relevant technical terminology, theories, and methodologies for {domain}.
+- Ensure content is plagiarism-free and original.
+- Follow standard academic report conventions.
 """
-        
+        ref_context = context.get("reference_context", "")
+        if ref_context:
+            base_prompt += f"\nREFERENCE MATERIALS & NOTES TO INCORPORATE:\n{ref_context}\n"
+
         # Add section-specific guidance
-        section_guidance = self._get_section_guidance(section, domain)
-        base_prompt += section_guidance
+        section_guidance = self._get_section_guidance(section, topic, domain)
+        base_prompt += "\n" + section_guidance
         
-        # Add context information
         if context.get('student_name'):
             base_prompt += f"\nStudent Name: {context['student_name']}"
         if context.get('college_name'):
@@ -89,63 +164,28 @@ REQUIREMENTS:
         if context.get('department'):
             base_prompt += f"\nDepartment: {context['department']}"
         
-        # Add length guidance
-        word_count = context.get('word_count', 300)
-        base_prompt += f"\n\nTarget length: approximately {word_count} words"
-        
-        base_prompt += "\n\nGenerate the content now:"
-        
+        word_count = context.get('word_count', 400)
+        base_prompt += f"\n\nTarget length: approximately {word_count} words.\n\nGenerate the content now:"
         return base_prompt
     
-    def _get_section_guidance(self, section: str, domain: str) -> str:
+    def _get_section_guidance(self, section: str, topic: str, domain: str) -> str:
         """Get section-specific writing guidance"""
-        guidance_map = {
-            "introduction": f"""Write an engaging introduction that:
-- Provides context for {topic} in {domain}
-- States the importance and relevance of this topic
-- Outlines what the report will cover
-- Includes a clear thesis or purpose statement
-- Uses {domain}-appropriate terminology""",
-            
-            "objectives": f"""List 4-6 specific, measurable objectives that:
-- Are directly related to {topic}
-- Use action verbs (analyze, evaluate, demonstrate, etc.)
-- Are achievable within the report scope
-- Follow SMART criteria (Specific, Measurable, Achievable, Relevant, Time-bound)
-- Reflect {domain} standards and practices""",
-            
-            "methodology": f"""Describe the research/approach methodology:
-- Explain the research design or approach
-- Detail methods, tools, and procedures
-- Justify methodology choices for {domain}
-- Include technical specifications relevant to {topic}
-- Address limitations and considerations""",
-            
-            "results": f"""Present findings and analysis:
-- Report key findings related to {topic}
-- Use {domain}-appropriate data presentation
-- Include relevant metrics and measurements
-- Analyze patterns and significance
-- Connect findings to methodology""",
-            
-            "conclusion": f"""Provide comprehensive conclusion that:
-- Summarizes key findings about {topic}
-- Discusses implications for {domain}
-- Identifies limitations and future research
-- Makes recommendations based on findings
-- Emphasizes the significance of the work""",
-            
-            "references": f"""List academic sources in appropriate format:
-- Include relevant {domain} literature
-- Use proper citation style
-- Ensure sources are credible and recent
-- Cover theoretical and practical aspects
-- Include diverse source types"""
-        }
-        
-        return guidance_map.get(section.lower(), 
-                               f"Write a comprehensive {section} section about {topic} in {domain} field.")
-    
+        s = section.lower()
+        if "intro" in s or "abstract" in s:
+            return f"Write a comprehensive introduction for {topic}, establishing background, problem context, significance, and report overview."
+        elif "literature" in s or "related" in s or "survey" in s:
+            return f"Provide an in-depth literature review and state-of-the-art analysis comparing existing works and approaches for {topic}."
+        elif "method" in s or "architecture" in s or "design" in s:
+            return f"Describe the detailed architecture, system design, algorithm flow, and methodology for {topic}."
+        elif "result" in s or "experiment" in s or "evaluation" in s or "implementation" in s:
+            return f"Detail implementation details, experimental setup, key findings, metrics, and quantitative/qualitative analysis for {topic}."
+        elif "conclusion" in s or "summary" in s or "future" in s:
+            return f"Provide an insightful conclusion summarizing key contributions, limitations, and future research directions for {topic}."
+        elif "ref" in s or "biblio" in s:
+            return f"List standard academic IEEE / APA citations and references for {topic}."
+        else:
+            return f"Write a rigorous, detailed academic section '{section}' specifically focused on {topic}."
+
     def is_available(self) -> bool:
         """Check if Gemini API is available for content generation"""
         return self.is_initialized
@@ -155,22 +195,20 @@ REQUIREMENTS:
         if not self.is_initialized:
             return {
                 "status": "unavailable",
-                "message": "API key not configured",
+                "message": "API key not configured (using intelligent rule-based engine)",
                 "model": None
             }
         
         try:
-            # Simple test prompt
-            test_prompt = "Write one sentence about academic writing."
-            response = await self.generate_section_content(
-                "test", "academic writing", "general", {"word_count": 20}
+            test_prompt = "Respond with 'Connected' if you can read this."
+            response = await asyncio.get_event_loop().run_in_executor(
+                None, self._generate_content_sync, test_prompt
             )
-            
             return {
                 "status": "available",
-                "message": "Gemini API connected successfully",
+                "message": "Gemini AI active",
                 "model": gemini_config.model_name,
-                "test_response": response[:100] + "..." if len(response) > 100 else response
+                "test_response": response[:60]
             }
         except Exception as e:
             return {
