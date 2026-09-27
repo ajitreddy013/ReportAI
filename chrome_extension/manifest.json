@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "ReportAI — Academic Google Docs Copilot",
+  "version": "1.0.0",
+  "description": "Transform and write university-standard engineering reports directly inside Google Docs with verified citations, set theory models, and test tables.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "sidePanel",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://docs.google.com/*",
+    "http://localhost:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open ReportAI Copilot"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://docs.google.com/document/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReportAI Copilot</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <div class="logo-icon">✨</div>
+      <div>
+        <h1>ReportAI</h1>
+        <p class="subtitle">Academic Docs Copilot</p>
+      </div>
+    </div>
+    <div id="connectionStatus" class="status-badge checking">
+      <span class="dot"></span> <span class="status-text">Connecting...</span>
+    </div>
+  </header>
+
+  <main class="chat-container">
+    <!-- Verification Status Bar -->
+    <div id="docVerificationCard" class="verification-card">
+      <div class="verif-header">
+        <span class="verif-title">📄 Active Document Status</span>
+        <button id="btnVerifyDoc" class="verif-btn" title="Scan active Google Doc">🔍 Verify Doc</button>
+      </div>
+      <div id="verifDetails" class="verif-details">
+        <span class="verif-pill" id="verifTopic">Topic: (Not set)</span>
+        <span class="verif-pill" id="verifIntegrity">Integrity: Clean</span>
+        <span class="verif-pill" id="verifWords">Words: ~0</span>
+      </div>
+    </div>
+
+    <!-- Quick Action Chips -->
+    <div class="chat-chips-bar">
+      <button class="chip" data-action="transform_all">🚀 Transform Whole Document</button>
+      <button class="chip" data-action="rewrite_selection">✍️ Rewrite Highlighted Text</button>
+      <button class="chip" data-action="add_test_cases">🧪 Add Test Table</button>
+      <button class="chip" data-action="add_math_model">📐 Add Set Model</button>
+      <button class="chip" data-action="add_citations">📚 IEEE References</button>
+    </div>
+
+    <!-- Chat Messages Stream -->
+    <div id="chatMessages" class="chat-stream">
+      <div class="chat-msg ai">
+        <div class="msg-avatar">✨</div>
+        <div class="msg-bubble">
+          <strong>Hi! I'm ReportAI Copilot.</strong><br><br>
+          Open your friend's report in Google Docs, and tell me your <strong>Project Topic</strong> and any hardware/software details (or team names).<br><br>
+          <em>Example:</em> "My project is <strong>Smart IoT Hydroponics</strong> using ESP32, pH and EC sensors. Team: Rohan, Priya, Varun, Ananya. Guide: Prof. Patil."
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Output / Action Drawer -->
+    <div id="quickActionDrawer" class="action-drawer hidden">
+      <div class="drawer-header">
+        <span id="drawerTitle" class="drawer-title">Generated Section</span>
+        <div class="drawer-actions">
+          <button id="btnInsertDoc" class="btn btn-primary btn-sm">📋 Copy to Doc</button>
+          <button id="btnCloseDrawer" class="icon-close">✕</button>
+        </div>
+      </div>
+      <div id="drawerBody" class="drawer-body"></div>
+    </div>
+
+    <!-- Chat Composer -->
+    <div class="chat-composer">
+      <textarea id="chatInput" rows="2" placeholder="Tell me your topic or ask any changes..."></textarea>
+      <button id="btnSend" class="send-btn" aria-label="Send">↑</button>
+    </div>
+  </main>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

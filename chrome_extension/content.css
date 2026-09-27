@@ -1,0 +1,176 @@
+/* content.css — Virtual AI Cursor, Selection, and Typing Animations for Google Docs */
+
+/* Virtual AI Agent Cursor */
+#reportai-virtual-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 999999;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.cursor-pointer {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 14px solid #2563eb;
+  transform: rotate(-35deg);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.cursor-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #60a5fa;
+  animation: pulse-dot 1s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* In-Page Text Diff & Selection Overlay */
+#reportai-selection-overlay {
+  position: fixed;
+  display: none;
+  pointer-events: none;
+  z-index: 999998;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#reportai-selection-overlay.selection-active {
+  display: block;
+}
+
+.diff-chip {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.diff-chip-del {
+  background: #fef2f2;
+  border: 1.5px solid #f87171;
+  color: #991b1b;
+}
+
+.diff-chip-del .chip-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #dc2626;
+  letter-spacing: 0.5px;
+}
+
+.diff-chip-del .chip-text {
+  text-decoration: line-through;
+  opacity: 0.85;
+}
+
+.deleting-anim {
+  animation: fade-delete 0.5s forwards;
+}
+
+@keyframes fade-delete {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0; }
+}
+
+.diff-chip-add {
+  background: #f0fdf4;
+  border: 1.5px solid #4ade80;
+  color: #166534;
+}
+
+.diff-chip-add .chip-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #16a34a;
+  letter-spacing: 0.5px;
+}
+
+.diff-chip-add .chip-text {
+  font-weight: 500;
+}
+
+.typing-caret {
+  display: inline-block;
+  font-weight: 700;
+  color: #16a34a;
+  animation: blink-caret 0.7s infinite;
+}
+
+@keyframes blink-caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Agent Top Control Banner */
+#reportai-agent-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 15px rgba(59, 130, 246, 0.3);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+#reportai-agent-banner.banner-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.banner-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 10px #60a5fa;
+  animation: banner-pulse-anim 1.2s infinite;
+}
+
+@keyframes banner-pulse-anim {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+}
